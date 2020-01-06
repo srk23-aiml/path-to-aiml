@@ -1,0 +1,403 @@
+## Data Description:
+#The data at hand contains medical costs of people
+#characterized by certain attributes.
+##Domain:
+#Healthcare/Insurance
+##Context:
+#Leveraging customer information is paramount for most
+#businesses. In the case of an insurance company, attributes of
+#customers like the ones mentioned below can be crucial in
+#making business decisions. Hence, knowing to explore and
+#generate value out of such data can be an invaluable skill to
+#have.
+##Attribute Information:
+#age : age of primary beneficiary
+#sex : insurance contractor gender, female, male
+#bmi : Body mass index, providing an understanding of body,
+#weights that are relatively high or low relative to height,
+#objective index of body weight (kg / m ^ 2) using the ratio of
+#height to weight, ideally 18.5 to 24.9
+#children : Number of children covered by health insurance /
+#Number of dependents
+#smoker : Smoking
+#region : the beneficiary's residential area in the US, northeast,
+#southeast, southwest, northwest.
+#charges : Individual medical costs billed by health insurance.
+##Learning Outcomes:
+● Exploratory Data Analysis
+● Practicing statistics using Python
+● Hypothesis testing
+##Objective:
+#We want to see if we can dive deep into this data to find some
+#valuable insights.
+#Steps and tasks:
+1. Import the necessary libraries
+2. Read the data as a data frame
+3. Perform basic EDA which should include the following
+and print out your insights at every step.
+a. Shape of the data
+b. Data type of each attribute
+c. Checking the presence of missing values
+d. 5 point summary of numerical attributes
+e. Distribution of ‘bmi’, ‘age’ and ‘charges’ columns.
+f. Measure of skewness of ‘bmi’, ‘age’ and ‘charges’
+columns
+g. Checking the presence of outliers in ‘bmi’, ‘age’ and
+‘charges columns
+h. Distribution of categorical columns (include
+children)
+i. Pair plot that includes all the columns of the data
+frame
+4. Answer the following questions with statistical evidence
+a. Do charges of people who smoke differ significantly
+from the people who don't?
+b. Does bmi of males differ significantly from that of
+females?
+c. Is the proportion of smokers significantly different
+in different genders?
+d. Is the distribution of bmi across women with no
+children, one child and two children, the same ?
+
+#load necessary packages in Python using Jupyter notebook
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import ttest_1samp, ttest_ind, mannwhitneyu, levene, shapiro
+from statsmodels.stats.power import ttest_power
+
+#Load insurance dataset
+my_insurance = pd.read_csv('insurance (2).csv')
+
+#Read data as dataframe (2-dimensional data structure i.e rows and columns)
+my_insurance
+
+#Shape of Data (rows, cols)
+my_insurance.shape
+
+(1338, 7)
+
+#Datatype of each attribute
+my_insurance.dtypes
+
+age           int64
+sex          object
+bmi         float64
+children      int64
+smoker       object
+region       object
+charges     float64
+dtype: object
+
+# Making a list of missing value types and let Pandas recognize them while importing the data
+missing_values = ["n/a", "na", "--", "NaaN"]
+my_insurance = pd.read_csv('insurance (2).csv', na_values = missing_values)
+
+#5 point summary of numerical attributes
+my_insurance.describe(include="all")
+
+#Distribution of ‘bmi’, ‘age’ and ‘charges’ columns using distplots
+sns.distplot(my_insurance['bmi'])
+sns.distplot(my_insurance['age'])
+sns.distplot(my_insurance['charges'])
+
+#Distribution of ‘bmi’, ‘age’ and ‘charges’ columns using pairplot
+sns.pairplot(my_insurance[['bmi', 'age', 'charges']])
+plt.show()
+
+#Measure of skewness of ‘bmi’, ‘age’ and ‘charges’ columns
+my_insurance[['bmi', 'age', 'charges']].skew()
+
+bmi        0.284047
+age        0.055673
+charges    1.515880
+dtype: float64
+
+#presence of outliers in ‘bmi’, ‘age’ and ‘charges' columns using boxplots (kindly note the datapoints which is more or less
+# than 1.5 times Q3, Q1 respectively)
+sns.boxplot(my_insurance['bmi'])
+plt.show()
+
+sns.boxplot(my_insurance['age'])
+plt.show()
+
+sns.boxplot(my_insurance['charges'])
+plt.show()
+
+#presence of outliers in ‘bmi’, ‘age’ and ‘charges' columns using IQR 
+Q1 = my_insurance.quantile(0.25)
+Q3 = my_insurance.quantile(0.75)
+IQR = Q3 - Q1
+IQR
+
+age            24.000000
+bmi             8.397500
+children        2.000000
+charges     11899.625365
+dtype: float64
+
+#The below code will give an output with some true and false values where true is an outlier
+print (my_insurance < (Q1 - 1.5 * IQR)) | (my_insurance > (Q3 + 1.5 * IQR))
+
+#Distribution of categorical columns (include children) using Stripplot
+#Children vs Sex
+sns.stripplot(my_insurance['children'], my_insurance['sex'], size = 20, linewidth=1, 
+              marker = "D", edgecolor="gray", alpha = .25)
+plt.show()
+
+#Children vs Smoker
+sns.stripplot(my_insurance['children'], my_insurance['smoker'], size = 20, linewidth=1, 
+              marker = "D", edgecolor="gray", alpha = .25)
+plt.show()
+
+#Children vs region
+sns.stripplot(my_insurance['children'], my_insurance['region'], size = 20, linewidth=1, 
+              marker = "D", edgecolor="gray", alpha = .25)
+plt.show()
+
+#Distribution of categorical columns (include children) using Violinplot
+#Children vs Sex
+sns.violinplot(my_insurance['children'], my_insurance['sex'],
+                         inner=None, color=".6")
+                         
+#Children vs Smoker
+sns.violinplot(my_insurance['children'], my_insurance['smoker'],
+                         inner=None, color=".6")
+                         
+#Children vs region
+sns.violinplot(my_insurance['children'], my_insurance['region'],
+                         inner=None, color=".6")
+                         
+#Distribution of categorical columns (include children) using swarmplot
+#Children vs Sex
+sns.swarmplot(my_insurance['children'], my_insurance['sex'], size = 20, linewidth=1, 
+              marker = "D", edgecolor="gray", alpha = .25)
+              
+#Children vs Smoker
+sns.swarmplot(my_insurance['children'], my_insurance['smoker'], size = 20, linewidth=1, 
+              marker = "D", edgecolor="gray", alpha = .25)
+              
+#Children vs region
+sns.swarmplot(my_insurance['children'], my_insurance['region'], size = 20, linewidth=1, 
+              marker = "D", edgecolor="gray", alpha = .25)
+              
+#Distribution of categorical columns (include children) using barplot
+#Children vs Sex
+sns.barplot(x='sex',y='children',data=my_insurance)
+
+#Children vs Smoker
+sns.barplot(x='smoker', y='children',data=my_insurance)
+
+#Children vs region
+sns.barplot(x='region', y='children',data=my_insurance)
+
+#Distribution of categorical columns (include children) using boxplot
+#Children vs Sex
+sns.boxplot(x='sex', y='children', data=my_insurance, palette='rainbow')
+
+#Children vs Smoker
+sns.boxplot(x='smoker', y='children', data=my_insurance, palette='rainbow')
+
+#Children vs Region
+sns.boxplot(x='region', y='children', data=my_insurance, palette='rainbow')
+
+#Distribution of categorical columns (include children) using stripplot
+#Children vs Sex
+sns.stripplot(x="sex",y="children",data=my_insurance,jitter=True,hue='sex',palette='Set1')
+
+#Pair plot that includes all the columns of the dataframe
+sns.pairplot(my_insurance)
+
+# Do charges of people who smoke differ significantly
+# from the people who don't?
+# Performing Independent t test to determine statistical evidence between mean of 2 independent groups
+# Splitting the data into 2 groups 1) SDF dataframe = Smoker with charges 2) NSDF dataframe = NonSmoker with charges
+SDF = my_insurance[my_insurance['smoker'] =="yes"]
+SDF
+
+NSDF = my_insurance[my_insurance['smoker'] =="no"]
+NSDF
+
+SDF_mean = np.mean(SDF['charges'])
+NSDF_mean = np.mean(NSDF['charges'])
+
+SDF_mean
+32050.23183153285
+
+NSDF_mean
+8434.268297856199
+
+SDF_std = np.std(SDF['charges'])
+NSDF_std = np.std(NSDF['charges'])
+
+SDF_std
+11520.466706529429
+
+NSDF_std
+5990.964530287611
+
+#Independent t Test taking into consideration the means of 2 independent groups with significance of 5%
+ttest,pval = ttest_ind(SDF['charges'],NSDF['charges'])
+print("p-value",pval)
+
+p-value 8.271435842177219e-283
+
+if pval <0.05:
+  print("reject null hypothesis")
+else:
+  print("fail to reject null hypothesis")
+  
+reject null hypothesis
+
+# Does bmi of males differ significantly from that of females?
+# Performing Independent t test to determine statistical evidence between mean of 2 independent groups
+# Splitting the data into 2 groups 1) MBMIDF dataframe = Male with BMIs 2) FBMIDF dataframe = Female with BMIs
+MBMIDF = my_insurance[my_insurance['sex'] =="male"]
+MBMIDF
+
+FBMIDF = my_insurance[my_insurance['sex'] =="female"]
+FBMIDF
+
+MBMIDF_mean = np.mean(MBMIDF['bmi'])
+FBMIDF_mean = np.mean(FBMIDF['bmi'])
+
+MBMIDF_mean
+
+30.943128698224832
+
+FBMIDF_mean
+
+30.377749244713023
+
+MBMIDF_std = np.std(MBMIDF['bmi'])
+FBMIDF_std = np.std(FBMIDF['bmi'])
+
+MBMIDF_std
+
+6.135891193330876
+
+FBMIDF_std
+
+6.041454877245924
+
+#Independent t Test taking into consideration the means of 2 independent groups with significance of 5%
+ttest,pval = ttest_ind(MBMIDF['bmi'],FBMIDF['bmi'])
+print("p-value",pval)
+
+p-value 0.08997637178984932
+
+if pval <0.05:
+  print("reject null hypothesis")
+else:
+  print("fail to reject null hypothesis")
+  
+fail to reject null hypothesis
+
+#Is the proportion of smokers significantly different in different genders 
+#i.e Ho = proportions are equal & Ha= proportions are not equal
+# lets split the data and get count of smokers as per different genders
+fsmokers = my_insurance[my_insurance['sex'] == 'female'].smoker.value_counts()[1]  # number of female smokers
+fsmokers
+
+115
+
+n_females = my_insurance.sex.value_counts()[1] # number of females in the dat
+n_females
+
+662
+
+msmokers = my_insurance[my_insurance['sex'] == 'male'].smoker.value_counts()[1] # number of male smokers
+msmokers
+
+159
+
+n_males = my_insurance.sex.value_counts()[0] #number of males in the data
+n_males
+
+676
+
+print([fsmokers, msmokers] , [n_females, n_males])
+
+[115, 159] [662, 676]
+
+print(f'Proportion of smokers in females, males = {round(115/662,2)}%, {round(159/676,2)}% respectively')
+
+Proportion of smokers in females, males = 0.17%, 0.24% respectively
+
+#to find statistically if the proportions are different Z proportion test is considered
+from statsmodels.stats.proportion import proportions_ztest
+
+stat,pval = proportions_ztest([fsmokers, msmokers], (n_females,n_males))
+print("p-value",pval)
+
+p-value 0.005324114164320532
+
+if pval < 0.05:
+    print(f'With a p-value of {round(pval,4)} the difference is significant. aka |We reject the null|')
+else:
+    print(f'With a p-value of {round(pval,4)} the difference is not significant. aka |We fail to reject the null|')
+    
+#Is the distribution of bmi across women with no
+# children, one child and two children, the same? i.e Hyp null = bmi = same
+# First lets have seperate dataframe for women with no children, 1 child, 2 child
+WDF = my_insurance[my_insurance['sex'] == "female"]
+WDF
+
+# WomenDF with no, 1 & 2 children
+W012DF =  WDF[WDF['children'] < 3]
+
+W012DF
+
+import statsmodels.api         as     sm
+from   statsmodels.formula.api import ols
+
+mod = ols('BMI ~ Women with 0,1,2 children', data = W0M).fit()
+aov_table = sm.stats.anova_lm(mod, typ=2)
+print(aov_table)
+#getting error with syntax
+
+Traceback (most recent call last):
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\IPython\core\interactiveshell.py", line 3325, in run_code
+    exec(code_obj, self.user_global_ns, self.user_ns)
+
+  File "<ipython-input-123-760549031f6a>", line 1, in <module>
+    mod = ols('BMI ~ Women with 0,1,2 children', data = W0M).fit()
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\statsmodels\base\model.py", line 159, in from_formula
+    missing=missing)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\statsmodels\formula\formulatools.py", line 68, in handle_formula_data
+    NA_action=na_action)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\highlevel.py", line 310, in dmatrices
+    NA_action, return_type)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\highlevel.py", line 165, in _do_highlevel_design
+    NA_action)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\highlevel.py", line 70, in _try_incr_builders
+    NA_action)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\build.py", line 689, in design_matrix_builders
+    factor_states = _factors_memorize(all_factors, data_iter_maker, eval_env)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\build.py", line 354, in _factors_memorize
+    which_pass = factor.memorize_passes_needed(state, eval_env)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\eval.py", line 474, in memorize_passes_needed
+    subset_names = [name for name in ast_names(self.code)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\eval.py", line 474, in <listcomp>
+    subset_names = [name for name in ast_names(self.code)
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\site-packages\patsy\eval.py", line 105, in ast_names
+    for node in ast.walk(ast.parse(code)):
+
+  File "C:\Users\RaviKiranShashidhara\Anaconda3\lib\ast.py", line 35, in parse
+    return compile(source, filename, mode, PyCF_ONLY_AST)
+
+  File "<unknown>", line 1
+    Women with 0, 1, 2 children
+             ^
+SyntaxError: invalid syntax
